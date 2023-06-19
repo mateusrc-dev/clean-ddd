@@ -28,9 +28,7 @@ export class AnswerQuestionUseCase {
       content,
       questionId: new UniqueEntityID(questionId),
     })
-
     await this.answersRepository.create(answer)
-
     return { answer }
   }
 }
