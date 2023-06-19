@@ -9,6 +9,11 @@ interface AnswerQuestionUseCaseRequest {
   content: string
 }
 
+interface AnswerQuestionUseCaseResponse {
+  // interface helps to identify what we are going to receive in this class as a parameter
+  answer: Answer
+}
+
 export class AnswerQuestionUseCase {
   // this class will have only one method - principle of SOLID
   constructor(private answersRepository: AnswersRepository) {}
@@ -16,7 +21,7 @@ export class AnswerQuestionUseCase {
     instructorId,
     questionId,
     content,
-  }: AnswerQuestionUseCaseRequest) {
+  }: AnswerQuestionUseCaseRequest): Promise<AnswerQuestionUseCaseResponse> {
     // this method consists of an instructor answering a question from the student
     const answer = Answer.create({
       authorId: new UniqueEntityID(instructorId),
@@ -26,6 +31,6 @@ export class AnswerQuestionUseCase {
 
     await this.answersRepository.create(answer)
 
-    return answer
+    return { answer }
   }
 }
