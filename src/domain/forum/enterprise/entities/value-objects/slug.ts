@@ -3,8 +3,13 @@
 export class Slug {
   public value: string
 
-  constructor(value: string) {
+  private constructor(value: string) {
     this.value = value
+  }
+
+  static create(slug: string) {
+    // let's create this method so we don't need to format the slug
+    return new Slug(slug)
   }
 
   /**
