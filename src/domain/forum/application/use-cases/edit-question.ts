@@ -1,3 +1,4 @@
+import { Question } from '../../enterprise/entities/question'
 import { QuestionsRepository } from '../repositories/question-repository'
 
 interface EditQuestionUseCaseRequest {
@@ -8,7 +9,9 @@ interface EditQuestionUseCaseRequest {
   content: string
 }
 
-interface EditQuestionUseCaseResponse {}
+interface EditQuestionUseCaseResponse {
+  question: Question
+}
 
 export class EditQuestionUseCase {
   // this class will have only one method - principle of SOLID
@@ -33,6 +36,6 @@ export class EditQuestionUseCase {
     question.content = content
 
     await this.questionsRepository.save(question)
-    return {}
+    return { question }
   }
 }
