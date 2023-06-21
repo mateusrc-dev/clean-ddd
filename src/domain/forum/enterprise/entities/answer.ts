@@ -59,7 +59,7 @@ export class Answer extends Entity<AnswerProps> {
   ) {
     // createdAt will be optional when creating a new question - but not database optional
     const answer = new Answer(
-      { ...props, createdAt: new Date() },
+      { ...props, createdAt: props.createdAt ?? new Date() },
       id, // let's automate the creation of createdAt
     ) // we can call Answer class because we extend Entity class
 

@@ -82,7 +82,7 @@ export class Question extends Entity<QuestionProps> {
       {
         ...props,
         slug: props.slug ?? Slug.createFromText(props.title),
-        createdAt: new Date(),
+        createdAt: props.createdAt ?? new Date(),
       },
       id, // let's automate the creation of createdAt and slug
     ) // we can call Question class because we extend Entity class
