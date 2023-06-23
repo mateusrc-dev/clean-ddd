@@ -2,12 +2,14 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Question } from '../../enterprise/entities/question'
 import { QuestionsRepository } from '../repositories/question-repository'
 import { Either, right } from '@/core/either'
+import { QuestionAttachment } from '../../enterprise/entities/question-attachment'
 
 interface CreateQuestionUseCaseRequest {
   // interface helps to identify what we are going to receive in this class as a parameter
   authorId: string
   title: string
   content: string
+  attachmentsIds: string[] // we let's have just the ids of attachments - multipart/form-data will have a route specific
 }
 
 type CreateQuestionUseCaseResponse = Either<null, { question: Question }>
@@ -19,12 +21,22 @@ export class CreateQuestionUseCase {
     authorId,
     content,
     title,
+    attachmentsIds,
   }: CreateQuestionUseCaseRequest): Promise<CreateQuestionUseCaseResponse> {
     const question = Question.create({
       authorId: new UniqueEntityID(authorId),
       content,
       title,
     })
+
+    const QuestionAttachments = attachmentsIds.map((attachmentId) => {
+      return QuestionAttachment.create({
+        attachmentId: new UniqueEntityID(attachmentId),
+        questionId: question.id,
+      })
+    })
+
+    question.attachments = QuestionAttachments
 
     await this.questionRepository.create(question)
 
