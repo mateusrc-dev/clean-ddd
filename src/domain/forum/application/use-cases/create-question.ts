@@ -1,6 +1,7 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Question } from '../../enterprise/entities/question'
 import { QuestionsRepository } from '../repositories/question-repository'
+import { Either, right } from '@/core/either'
 
 interface CreateQuestionUseCaseRequest {
   // interface helps to identify what we are going to receive in this class as a parameter
@@ -9,10 +10,7 @@ interface CreateQuestionUseCaseRequest {
   content: string
 }
 
-interface CreateQuestionUseCaseResponse {
-  // response of use case
-  question: Question
-}
+type CreateQuestionUseCaseResponse = Either<null, { question: Question }>
 
 export class CreateQuestionUseCase {
   // this class will have only one method - principle of SOLID
@@ -30,6 +28,6 @@ export class CreateQuestionUseCase {
 
     await this.questionRepository.create(question)
 
-    return { question }
+    return right({ question })
   }
 }
