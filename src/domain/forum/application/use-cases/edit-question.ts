@@ -3,7 +3,7 @@ import { Question } from '../../enterprise/entities/question'
 import { QuestionsRepository } from '../repositories/question-repository'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { NotAllowedError } from './errors/not-allowed-error'
-import { QuestionAttachmentRepository } from '../repositories/question-attachment-repository'
+import { QuestionAttachmentsRepository } from '../repositories/question-attachments-repository'
 import { QuestionAttachmentList } from '../../enterprise/entities/question-attachment-list'
 import { QuestionAttachment } from '../../enterprise/entities/question-attachment'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
@@ -28,7 +28,7 @@ export class EditQuestionUseCase {
   // this class will have only one method - principle of SOLID
   constructor(
     private questionsRepository: QuestionsRepository,
-    private questionAttachmentRepository: QuestionAttachmentRepository,
+    private questionAttachmentRepository: QuestionAttachmentsRepository,
   ) {}
 
   async execute({
@@ -64,9 +64,9 @@ export class EditQuestionUseCase {
 
     questionAttachmentList.update(questionAttachments)
 
+    question.attachments = questionAttachmentList // now we let's update attachments in question
     question.title = title
     question.content = content
-    question.attachments = questionAttachmentList // now we let's update attachments in question
 
     await this.questionsRepository.save(question)
     return right({ question })
