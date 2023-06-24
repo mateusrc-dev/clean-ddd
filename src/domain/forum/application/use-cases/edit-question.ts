@@ -3,6 +3,10 @@ import { Question } from '../../enterprise/entities/question'
 import { QuestionsRepository } from '../repositories/question-repository'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { NotAllowedError } from './errors/not-allowed-error'
+import { QuestionAttachmentRepository } from '../repositories/question-attachment-repository'
+import { QuestionAttachmentList } from '../../enterprise/entities/question-attachment-list'
+import { QuestionAttachment } from '../../enterprise/entities/question-attachment'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 interface EditQuestionUseCaseRequest {
   // interface helps to identify what we are going to receive in this class as a parameter
@@ -10,6 +14,7 @@ interface EditQuestionUseCaseRequest {
   questionId: string
   title: string
   content: string
+  attachmentsIds: string[]
 }
 
 type EditQuestionUseCaseResponse = Either<
@@ -21,14 +26,19 @@ type EditQuestionUseCaseResponse = Either<
 
 export class EditQuestionUseCase {
   // this class will have only one method - principle of SOLID
-  constructor(private questionsRepository: QuestionsRepository) {}
+  constructor(
+    private questionsRepository: QuestionsRepository,
+    private questionAttachmentRepository: QuestionAttachmentRepository,
+  ) {}
+
   async execute({
     authorId,
     questionId,
     content,
     title,
+    attachmentsIds,
   }: EditQuestionUseCaseRequest): Promise<EditQuestionUseCaseResponse> {
-    const question = await this.questionsRepository.findById(questionId)
+    const question = await this.questionsRepository.findById(questionId) // in reals databases here will not have attachment information as this information will be in the attachment database - attachments will be empty in real question database
 
     if (!question) {
       return left(new ResourceNotFoundError())
@@ -38,8 +48,25 @@ export class EditQuestionUseCase {
       return left(new NotAllowedError())
     }
 
+    const currentQuestionAttachments =
+      await this.questionAttachmentRepository.findManyByQuestionId(questionId) // attachments will be empty in real question database
+
+    const questionAttachmentList = new QuestionAttachmentList(
+      currentQuestionAttachments,
+    )
+
+    const questionAttachments = attachmentsIds.map((attachmentId) => {
+      return QuestionAttachment.create({
+        attachmentId: new UniqueEntityID(attachmentId),
+        questionId: question.id,
+      })
+    })
+
+    questionAttachmentList.update(questionAttachments)
+
     question.title = title
     question.content = content
+    question.attachments = questionAttachmentList // now we let's update attachments in question
 
     await this.questionsRepository.save(question)
     return right({ question })
