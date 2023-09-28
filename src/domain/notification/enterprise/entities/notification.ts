@@ -2,7 +2,7 @@ import { Entity } from "@/core/entities/entity";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import { Optional } from "@/core/types/optional";
 
-interface NotificationProps {
+export interface NotificationProps {
     recipientId: UniqueEntityID,
     title: string
     content: string
@@ -16,19 +16,23 @@ export class Notification extends Entity<NotificationProps> {
     }
 
     get title() {
-        return this.props.recipientId
+        return this.props.title
     }
 
     get content() {
-        return this.props.recipientId
+        return this.props.content
     }
 
     get readAt() {
-        return this.props.recipientId
+        return this.props.readAt
     }
 
     get createAt() {
-        return this.props.recipientId
+        return this.props.createAt
+    }
+
+    read() {
+        this.props.readAt = new Date()
     }
 
     static create(props: Optional<NotificationProps, 'createAt'>, id?: UniqueEntityID) {

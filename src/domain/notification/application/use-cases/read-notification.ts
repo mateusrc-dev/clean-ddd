@@ -1,33 +1,37 @@
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { Either, right } from '@/core/either'
+import { Either, left, right } from '@/core/either'
 import { Notification } from '../../enterprise/entities/notification'
 import { NotificationsRepository } from '../repositories/notifications-repository'
+import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-error'
+import { NotAllowedError } from '@/core/errors/errors/not-allowed-error'
 
 
-interface SendNotificationUseCaseRequest {
-  // interface helps to identify what we are going to receive in this class as a parameter
+interface ReadNotificationUseCaseRequest {
   recipientId: string
-  title: string
-  content: string
+  notificationId: string
 }
 
-type SendNotificationUseCaseResponse = Either<null, { notification: Notification }>
+type ReadNotificationUseCaseResponse = Either<ResourceNotFoundError | NotAllowedError, { notification: Notification }>
 
-export class SendNotificationUseCase {
+export class ReadNotificationUseCase {
   // this class will have only one method - principle of SOLID
   constructor(private notificationRepository: NotificationsRepository) {}
   async execute({
     recipientId,
-    content,
-    title,
-  }: SendNotificationUseCaseRequest): Promise<SendNotificationUseCaseResponse> {
-    const notification = Notification.create({
-      recipientId: new UniqueEntityID(recipientId),
-      content,
-      title,
-    })
+    notificationId
+  }: ReadNotificationUseCaseRequest): Promise<ReadNotificationUseCaseResponse> {
+    const notification = await this.notificationRepository.findById(notificationId)
 
-    await this.notificationRepository.create(notification)
+    if (!notification) {
+      return left(new ResourceNotFoundError())
+    }
+
+    if (recipientId !== notification.recipientId.toString()) {
+      return left(new NotAllowedError())
+    }
+
+    notification.read()
+
+    await this.notificationRepository.save(notification)
 
     return right({ notification })
   }
