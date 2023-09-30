@@ -4,14 +4,14 @@ import { Notification } from '../../enterprise/entities/notification'
 import { NotificationsRepository } from '../repositories/notifications-repository'
 
 
-interface SendNotificationUseCaseRequest {
+export interface SendNotificationUseCaseRequest {
   // interface helps to identify what we are going to receive in this class as a parameter
   recipientId: string
   title: string
   content: string
 }
 
-type SendNotificationUseCaseResponse = Either<null, { notification: Notification }>
+export type SendNotificationUseCaseResponse = Either<null, { notification: Notification }>
 
 export class SendNotificationUseCase {
   // this class will have only one method - principle of SOLID
